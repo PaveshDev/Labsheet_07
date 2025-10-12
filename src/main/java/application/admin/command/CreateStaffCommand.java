@@ -1,17 +1,17 @@
 package application.admin.command;
 
-import application.admin.AdminDirectory;
+import application.admin.AdminService;
 import application.admin.Staff;
 
 /**
  * Command to create a new staff member.
  */
 public class CreateStaffCommand implements AdminCommand {
-    private final AdminDirectory adminService;
+    private final AdminService adminService;
     private final String staffName;
     private Staff createdStaff;
 
-    public CreateStaffCommand(AdminDirectory adminService, String staffName) {
+    public CreateStaffCommand(AdminService adminService, String staffName) {
         this.adminService = adminService;
         this.staffName = staffName;
     }

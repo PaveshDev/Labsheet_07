@@ -1,29 +1,26 @@
 package application.admin.command;
 
-import application.admin.AdminDirectory;
+import application.admin.AdminService;
 import application.admin.Staff;
-
-import java.util.List;
 
 /**
  * Command that prints a textual snapshot of the staff roster.
  */
 public class GenerateStaffRosterCommand implements AdminCommand {
-    private final AdminDirectory adminService;
+    private final AdminService adminService;
 
-    public GenerateStaffRosterCommand(AdminDirectory adminService) {
+    public GenerateStaffRosterCommand(AdminService adminService) {
         this.adminService = adminService;
     }
 
     @Override
     public void execute() {
         System.out.println("=== Staff Roster ===");
-        List<Staff> staffMembers = adminService.listStaff();
-        if (staffMembers.isEmpty()) {
+        if (adminService.listStaff().isEmpty()) {
             System.out.println("No staff registered");
             return;
         }
-        for (Staff staff : staffMembers) {
+        for (Staff staff : adminService.listStaff()) {
             System.out.printf("%s - %s (%s)%n",
                     staff.getId(),
                     staff.getName(),

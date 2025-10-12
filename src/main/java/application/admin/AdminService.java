@@ -1,63 +1,43 @@
 package application.admin;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedHashMap;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 /**
- * Provides management operations for hotel staff from the administrator perspective.
+ * Provides management operations for hotel rooms from the administrator perspective.
  */
-public class AdminService implements AdminDirectory {
-    private final Map<UUID, Staff> staffDirectory = new LinkedHashMap<>();
+public class AdminService {
+    private final Map<Integer, Room> rooms = new HashMap<>();
 
-    @Override
-    public Staff createStaff(String name) {
-        if (name == null || name.isBlank()) {
-            throw new IllegalArgumentException("Staff name must not be blank");
+    public void addRoom(Room room) {
+        rooms.put(room.getRoomNumber(), room);
+    }
+
+    public void updateRate(int roomNumber, double newRate) {
+        Room room = requireRoom(roomNumber);
+        room.setRatePerNight(newRate);
+    }
+
+    public void setAvailability(int roomNumber, boolean available) {
+        Room room = requireRoom(roomNumber);
+        room.setAvailable(available);
+    }
+
+    public Room viewRoom(int roomNumber) {
+        return requireRoom(roomNumber);
+    }
+
+    public List<Room> listRooms() {
+        return new ArrayList<>(rooms.values());
+    }
+
+    private Room requireRoom(int roomNumber) {
+        Room room = rooms.get(roomNumber);
+        if (room == null) {
+            throw new IllegalArgumentException("Room " + roomNumber + " is not registered");
         }
-
-        Staff staff = new Staff(UUID.randomUUID(), name.trim());
-        staffDirectory.put(staff.getId(), staff);
-        return staff;
-    }
-
-    @Override
-    public Staff assignRole(UUID staffId, Role role) {
-        Staff staff = requireStaff(staffId);
-        staff.setRole(role);
-        return staff;
-    }
-
-    @Override
-    public Staff viewStaff(UUID staffId) {
-        return requireStaff(staffId);
-    }
-
-    public Staff getStaff(UUID staffId) {
-        return viewStaff(staffId);
-    }
-
-    @Override
-    public List<Staff> listStaff() {
-        return Collections.unmodifiableList(new ArrayList<>(staffDirectory.values()));
-    }
-
-    public boolean hasStaff(UUID staffId) {
-        return staffDirectory.containsKey(staffId);
-    }
-
-    public List<Staff> getAllStaff() {
-        return listStaff();
-    }
-
-    private Staff requireStaff(UUID staffId) {
-        Staff staff = staffDirectory.get(staffId);
-        if (staff == null) {
-            throw new IllegalArgumentException("Staff member " + staffId + " is not registered");
-        }
-        return staff;
+        return room;
     }
 }
