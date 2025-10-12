@@ -22,7 +22,8 @@ public class AssignRoleCommand implements AdminCommand {
 
     @Override
     public void execute() {
-        Staff staff = adminService.assignRole(staffId, role);
+        adminService.assignRole(staffId, role);
+        Staff staff = adminService.viewStaff(staffId);
         System.out.printf("Assigned role %s to %s%n", staff.getRole(), staff.getName());
     }
 }

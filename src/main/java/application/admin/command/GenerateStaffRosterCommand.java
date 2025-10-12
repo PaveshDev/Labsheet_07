@@ -3,8 +3,6 @@ package application.admin.command;
 import application.admin.AdminService;
 import application.admin.Staff;
 
-import java.util.List;
-
 /**
  * Command that prints a textual snapshot of the staff roster.
  */
@@ -18,12 +16,11 @@ public class GenerateStaffRosterCommand implements AdminCommand {
     @Override
     public void execute() {
         System.out.println("=== Staff Roster ===");
-        List<Staff> staffMembers = adminService.getAllStaff();
-        if (staffMembers.isEmpty()) {
+        if (adminService.listStaff().isEmpty()) {
             System.out.println("No staff registered");
             return;
         }
-        for (Staff staff : staffMembers) {
+        for (Staff staff : adminService.listStaff()) {
             System.out.printf("%s - %s (%s)%n",
                     staff.getId(),
                     staff.getName(),
