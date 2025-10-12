@@ -1,20 +1,17 @@
 package application;
 
 import application.admin.AdminService;
-import application.admin.Room;
-import application.admin.command.AddRoomCommand;
+import application.admin.Role;
 import application.admin.command.AdminCommandInvoker;
-import application.admin.command.GenerateInventoryReportCommand;
-import application.admin.command.ToggleRoomAvailabilityCommand;
-import application.admin.command.UpdateRoomRateCommand;
+import application.admin.command.AssignRoleCommand;
+import application.admin.command.CreateStaffCommand;
+import application.admin.command.GenerateStaffRosterCommand;
 
 /**
  * Demonstrates the admin component of the hotel reservation system.
  * <p>
- * The component uses the Command design pattern to decouple the invocation of
- * admin actions from their implementation. Each admin operation (adding rooms,
- * updating rates, toggling availability, generating reports) is represented as a
- * concrete command object.
+ * The component uses the Command design pattern to manage staff creation and
+ * role assignment actions through dedicated command objects.
  */
 public class Main {
 
@@ -22,18 +19,27 @@ public class Main {
         AdminService adminService = new AdminService();
         AdminCommandInvoker invoker = new AdminCommandInvoker();
 
-        invoker.register("add-room-101", new AddRoomCommand(adminService,
-                new Room(101, "Deluxe", 150.0, true)));
-        invoker.register("add-room-102", new AddRoomCommand(adminService,
-                new Room(102, "Suite", 250.0, true)));
-        invoker.register("update-rate-101", new UpdateRoomRateCommand(adminService, 101, 175.0));
-        invoker.register("mark-102-maintenance", new ToggleRoomAvailabilityCommand(adminService, 102, false));
-        invoker.register("print-report", new GenerateInventoryReportCommand(adminService));
+        CreateStaffCommand createReceptionist = new CreateStaffCommand(adminService, "Alice Johnson");
+        CreateStaffCommand createHousekeeper = new CreateStaffCommand(adminService, "Ben King");
 
-        invoker.execute("add-room-101");
-        invoker.execute("add-room-102");
-        invoker.execute("update-rate-101");
-        invoker.execute("mark-102-maintenance");
-        invoker.execute("print-report");
+        invoker.register("create-alice", createReceptionist);
+        invoker.register("create-ben", createHousekeeper);
+        invoker.register("print-roster", new GenerateStaffRosterCommand(adminService));
+
+        invoker.execute("create-alice");
+        invoker.execute("create-ben");
+
+        invoker.register("assign-alice", new AssignRoleCommand(
+                adminService,
+                createReceptionist.getCreatedStaff().getId(),
+                Role.MANAGER));
+        invoker.register("assign-ben", new AssignRoleCommand(
+                adminService,
+                createHousekeeper.getCreatedStaff().getId(),
+                Role.HOUSEKEEPING));
+
+        invoker.execute("assign-alice");
+        invoker.execute("assign-ben");
+        invoker.execute("print-roster");
     }
 }
