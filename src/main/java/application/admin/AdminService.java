@@ -3,13 +3,13 @@ package application.admin;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 /**
  * Provides management operations for hotel staff from the administrator perspective.
  */
 public class AdminService implements AdminDirectory {
-    private final Map<UUID, Staff> staffDirectory = new LinkedHashMap<>();
+    private final Map<String, Staff> staffDirectory = new LinkedHashMap<>();
+    private int nextStaffNumber = 1;
 
     @Override
     public Staff createStaff(String name) {
@@ -19,13 +19,13 @@ public class AdminService implements AdminDirectory {
         }
         ensureNameIsUnique(trimmedName);
 
-        Staff staff = new Staff(UUID.randomUUID(), trimmedName);
+        Staff staff = new Staff(generateNextId(), trimmedName);
         staffDirectory.put(staff.getId(), staff);
         return staff;
     }
 
     @Override
-    public Staff assignRole(UUID staffId, Role role) {
+    public Staff assignRole(String staffId, Role role) {
         Staff staff = requireStaff(staffId);
         if (role == null) {
             throw new IllegalArgumentException("Role must not be null");
@@ -35,7 +35,7 @@ public class AdminService implements AdminDirectory {
     }
 
     @Override
-    public Staff viewStaff(UUID staffId) {
+    public Staff viewStaff(String staffId) {
         return requireStaff(staffId);
     }
 
@@ -44,7 +44,7 @@ public class AdminService implements AdminDirectory {
         return List.copyOf(staffDirectory.values());
     }
 
-    private Staff requireStaff(UUID staffId) {
+    private Staff requireStaff(String staffId) {
         if (staffId == null) {
             throw new IllegalArgumentException("Staff id must not be null");
         }
@@ -53,6 +53,12 @@ public class AdminService implements AdminDirectory {
             throw new IllegalArgumentException("Staff member " + staffId + " is not registered");
         }
         return staff;
+    }
+
+    private String generateNextId() {
+        String id = String.format("%03d", nextStaffNumber);
+        nextStaffNumber++;
+        return id;
     }
 
     private void ensureNameIsUnique(String name) {

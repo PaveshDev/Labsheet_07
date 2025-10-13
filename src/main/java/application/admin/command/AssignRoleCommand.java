@@ -4,17 +4,15 @@ import application.admin.AdminService;
 import application.admin.Role;
 import application.admin.Staff;
 
-import java.util.UUID;
-
 /**
  * Command to assign a role to an existing staff member.
  */
 public class AssignRoleCommand implements AdminCommand {
     private final AdminService adminService;
-    private final UUID staffId;
+    private final String staffId;
     private final Role role;
 
-    public AssignRoleCommand(AdminService adminService, UUID staffId, Role role) {
+    public AssignRoleCommand(AdminService adminService, String staffId, Role role) {
         if (adminService == null) {
             throw new IllegalArgumentException("adminService must not be null");
         }
