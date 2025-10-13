@@ -1,18 +1,21 @@
 package application.admin;
 
 import java.util.Objects;
-import java.util.UUID;
 
 /**
  * Represents a member of the hotel's staff managed by the admin component.
  */
 public class Staff {
-    private final UUID id;
+    private final String id;
     private final String name;
     private Role role;
 
-    public Staff(UUID id, String name) {
-        this.id = Objects.requireNonNull(id, "id");
+    public Staff(String id, String name) {
+        String normalizedId = Objects.requireNonNull(id, "id").trim();
+        if (normalizedId.isEmpty()) {
+            throw new IllegalArgumentException("id must not be blank");
+        }
+        this.id = normalizedId;
         String normalizedName = Objects.requireNonNull(name, "name").trim();
         if (normalizedName.isEmpty()) {
             throw new IllegalArgumentException("name must not be blank");
@@ -20,7 +23,7 @@ public class Staff {
         this.name = normalizedName;
     }
 
-    public UUID getId() {
+    public String getId() {
         return id;
     }
 
