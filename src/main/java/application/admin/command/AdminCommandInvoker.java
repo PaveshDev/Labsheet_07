@@ -2,6 +2,7 @@ package application.admin.command;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.function.Consumer;
 
 /**
  * Invoker that stores and executes admin commands by name.
@@ -23,6 +24,10 @@ public class AdminCommandInvoker {
     }
 
     public void execute(String name) {
+        execute(name, line -> System.out.println(line));
+    }
+
+    public void execute(String name, Consumer<String> output) {
         if (name == null || name.isBlank()) {
             throw new IllegalArgumentException("Command name must not be blank");
         }
@@ -30,7 +35,10 @@ public class AdminCommandInvoker {
         if (command == null) {
             throw new IllegalArgumentException("Unknown admin command: " + name);
         }
-        command.execute();
+        if (output == null) {
+            throw new IllegalArgumentException("Output consumer must not be null");
+        }
+        command.execute(output);
     }
 
     public Map<String, AdminCommand> getRegisteredCommands() {
