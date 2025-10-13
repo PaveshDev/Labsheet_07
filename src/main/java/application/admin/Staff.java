@@ -13,7 +13,11 @@ public class Staff {
 
     public Staff(UUID id, String name) {
         this.id = Objects.requireNonNull(id, "id");
-        this.name = Objects.requireNonNull(name, "name");
+        String normalizedName = Objects.requireNonNull(name, "name").trim();
+        if (normalizedName.isEmpty()) {
+            throw new IllegalArgumentException("name must not be blank");
+        }
+        this.name = normalizedName;
     }
 
     public UUID getId() {

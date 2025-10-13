@@ -12,8 +12,15 @@ public class CreateStaffCommand implements AdminCommand {
     private Staff createdStaff;
 
     public CreateStaffCommand(AdminService adminService, String staffName) {
+        if (adminService == null) {
+            throw new IllegalArgumentException("adminService must not be null");
+        }
+        String normalizedName = staffName == null ? "" : staffName.trim();
+        if (normalizedName.isEmpty()) {
+            throw new IllegalArgumentException("staffName must not be blank");
+        }
         this.adminService = adminService;
-        this.staffName = staffName;
+        this.staffName = normalizedName;
     }
 
     @Override

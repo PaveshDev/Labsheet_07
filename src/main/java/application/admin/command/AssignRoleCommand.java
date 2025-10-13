@@ -15,6 +15,15 @@ public class AssignRoleCommand implements AdminCommand {
     private final Role role;
 
     public AssignRoleCommand(AdminService adminService, UUID staffId, Role role) {
+        if (adminService == null) {
+            throw new IllegalArgumentException("adminService must not be null");
+        }
+        if (staffId == null) {
+            throw new IllegalArgumentException("staffId must not be null");
+        }
+        if (role == null) {
+            throw new IllegalArgumentException("role must not be null");
+        }
         this.adminService = adminService;
         this.staffId = staffId;
         this.role = role;
