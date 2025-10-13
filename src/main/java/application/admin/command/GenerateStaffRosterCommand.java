@@ -10,17 +10,21 @@ public class GenerateStaffRosterCommand implements AdminCommand {
     private final AdminService adminService;
 
     public GenerateStaffRosterCommand(AdminService adminService) {
+        if (adminService == null) {
+            throw new IllegalArgumentException("adminService must not be null");
+        }
         this.adminService = adminService;
     }
 
     @Override
     public void execute() {
         System.out.println("=== Staff Roster ===");
-        if (adminService.listStaff().isEmpty()) {
+        var staffMembers = adminService.listStaff();
+        if (staffMembers.isEmpty()) {
             System.out.println("No staff registered");
             return;
         }
-        for (Staff staff : adminService.listStaff()) {
+        for (Staff staff : staffMembers) {
             System.out.printf("%s - %s (%s)%n",
                     staff.getId(),
                     staff.getName(),
