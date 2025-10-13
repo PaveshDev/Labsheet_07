@@ -33,9 +33,7 @@ public class Main {
 
     public static void main(String[] args) {
         runAdminDemo();
-        CustomerRegistry customerRegistry = runCustomerManagementDemo();
-        PromotionService promotionService = runPromotionManagementDemo();
-        runRoomAndBookingDemo(customerRegistry, promotionService);
+        runRoomAndBookingDemo();
         runReviewDemo();
     }
 
@@ -69,46 +67,7 @@ public class Main {
         System.out.println();
     }
 
-    private static CustomerRegistry runCustomerManagementDemo() {
-        System.out.println("--- Customer Management Singleton Demo ---");
-
-        CustomerRegistry registry = CustomerRegistry.getInstance();
-        registry.clear();
-        registry.register(new Customer("CUST-100", "Grace Lee", "grace@example.com"));
-        registry.register(new Customer("CUST-200", "Henry Fox", "henry@example.com"));
-        registry.updateEmail("CUST-200", "henry.vip@example.com");
-
-        System.out.println("Registered customers:");
-        registry.listCustomers().forEach(customer ->
-                System.out.printf("%s - %s%n", customer.getId(), customer));
-        System.out.println("Lookup result for CUST-100: " + registry.findById("CUST-100"));
-        System.out.println("Updated contact for Henry: " + registry.findById("CUST-200"));
-        System.out.println();
-
-        return registry;
-    }
-
-    private static PromotionService runPromotionManagementDemo() {
-        System.out.println("--- Promotion Factory Management Demo ---");
-
-        PromotionService promotionService = new PromotionService(new PromotionFactory());
-        promotionService.createPromotion("percentage", "Summer Sale", 0.20);
-        promotionService.createPromotion("flat", "Welcome Credit", 50);
-        promotionService.createPromotion("percentage", "Loyalty Bonus", 0.10);
-
-        System.out.println("Active promotions:");
-        promotionService.listPromotions().forEach(promotion ->
-                System.out.printf("- %s transforms $500.00 stay to $%.2f%n",
-                        promotion.name(), promotion.apply(500)));
-        double stackedPreview = promotionService.applyPromotions(500);
-        System.out.printf("Stacking every promotion on $500.00 stay results in $%.2f%n",
-                stackedPreview);
-        System.out.println();
-
-        return promotionService;
-    }
-
-    private static void runRoomAndBookingDemo(CustomerRegistry customerRegistry, PromotionService promotionService) {
+    private static void runRoomAndBookingDemo() {
         System.out.println("--- Room Builder, Strategy, and Factory Patterns Demo ---");
 
         RoomCatalog catalog = new RoomCatalog();
@@ -130,18 +89,17 @@ public class Main {
         catalog.register(familyRoom);
         catalog.listRooms().forEach(room -> System.out.println("Registered room: " + room));
 
-        System.out.println("Booking for loyal customer: " + customerRegistry.findById("CUST-100"));
-        System.out.println("Booking for standard customer: " + customerRegistry.findById("CUST-200"));
+        CustomerRegistry customerRegistry = CustomerRegistry.getInstance();
+        customerRegistry.register(new Customer("CUST-100", "Grace Lee", "grace@example.com"));
+        customerRegistry.register(new Customer("CUST-200", "Henry Fox", "henry@example.com"));
 
         BookingService bookingService = new BookingService();
         bookingService.registerStrategy("standard", new StandardPricingStrategy());
         bookingService.registerStrategy("loyalty", new LoyaltyPricingStrategy(0.15, 0.10, Set.of("CUST-100")));
 
-        Promotion summerPromo = promotionService.findPromotion("Summer Sale");
-        Promotion welcomePromo = promotionService.findPromotion("Welcome Credit");
-        if (summerPromo == null || welcomePromo == null) {
-            throw new IllegalStateException("Required promotions not registered");
-        }
+        PromotionService promotionService = new PromotionService(new PromotionFactory());
+        Promotion summerPromo = promotionService.createPromotion("percentage", "Summer Sale", 0.20);
+        Promotion welcomePromo = promotionService.createPromotion("flat", "Welcome Credit", 50);
 
         Booking graceBooking = bookingService.createBooking(
                 "loyalty",
@@ -150,8 +108,7 @@ public class Main {
                 LocalDate.now().plusDays(7),
                 3);
         double discountedTotal = welcomePromo.apply(summerPromo.apply(graceBooking.getTotalCost()));
-        System.out.printf("Booking %s final total after %s and %s: $%.2f%n",
-                graceBooking.getBookingId(), summerPromo.name(), welcomePromo.name(), discountedTotal);
+        System.out.printf("Booking %s final total after promotions: $%.2f%n", graceBooking.getBookingId(), discountedTotal);
 
         Booking henryBooking = bookingService.createBooking(
                 "standard",

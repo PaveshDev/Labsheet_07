@@ -1,7 +1,6 @@
 package application.customer;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -29,18 +28,6 @@ public class CustomerRegistry {
     }
 
     public Collection<Customer> listCustomers() {
-        return Collections.unmodifiableCollection(customers.values());
-    }
-
-    public void updateEmail(String id, String newEmail) {
-        Customer existing = customers.get(id);
-        if (existing == null) {
-            throw new IllegalArgumentException("No customer found with id " + id);
-        }
-        customers.put(id, new Customer(id, existing.getName(), newEmail));
-    }
-
-    public void clear() {
-        customers.clear();
+        return customers.values();
     }
 }

@@ -1,7 +1,5 @@
 package application.promotion;
 
-import java.util.Collection;
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -24,21 +22,5 @@ public class PromotionService {
 
     public Promotion findPromotion(String name) {
         return promotions.get(name);
-    }
-
-    public Collection<Promotion> listPromotions() {
-        return Collections.unmodifiableCollection(promotions.values());
-    }
-
-    public void deactivatePromotion(String name) {
-        promotions.remove(name);
-    }
-
-    public double applyPromotions(double amount) {
-        double total = amount;
-        for (Promotion promotion : promotions.values()) {
-            total = promotion.apply(total);
-        }
-        return total;
     }
 }
