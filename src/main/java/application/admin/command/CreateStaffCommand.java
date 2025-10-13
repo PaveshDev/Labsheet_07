@@ -3,6 +3,9 @@ package application.admin.command;
 import application.admin.AdminService;
 import application.admin.Staff;
 
+import java.util.Objects;
+import java.util.function.Consumer;
+
 /**
  * Command to create a new staff member.
  */
@@ -24,9 +27,13 @@ public class CreateStaffCommand implements AdminCommand {
     }
 
     @Override
-    public void execute() {
+    public void execute(Consumer<String> output) {
+        Objects.requireNonNull(output, "output");
         createdStaff = adminService.createStaff(staffName);
-        System.out.printf("Created staff member %s with id %s%n", createdStaff.getName(), createdStaff.getId());
+        output.accept(String.format(
+                "Created staff member %s with id %s",
+                createdStaff.getName(),
+                createdStaff.getId()));
     }
 
     public Staff getCreatedStaff() {

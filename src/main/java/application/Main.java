@@ -23,6 +23,7 @@ import application.room.RoomCatalog;
 
 import java.time.LocalDate;
 import java.util.Set;
+import java.util.function.Consumer;
 
 /**
  * Demonstrates the hotel reservation subsystems and the design patterns used
@@ -53,8 +54,9 @@ public class Main {
         invoker.register("create-ben", createHousekeeper);
         invoker.register("print-roster", new GenerateStaffRosterCommand(adminService));
 
-        invoker.execute("create-alice");
-        invoker.execute("create-ben");
+        printIndented(1, "Staff creation:");
+        invoker.execute("create-alice", indentConsumer(2));
+        invoker.execute("create-ben", indentConsumer(2));
 
         invoker.register("assign-alice", new AssignRoleCommand(
                 adminService,
@@ -65,9 +67,12 @@ public class Main {
                 createHousekeeper.getCreatedStaff().getId(),
                 Role.HOUSEKEEPING));
 
-        invoker.execute("assign-alice");
-        invoker.execute("assign-ben");
-        invoker.execute("print-roster");
+        printIndented(1, "Role assignments:");
+        invoker.execute("assign-alice", indentConsumer(2));
+        invoker.execute("assign-ben", indentConsumer(2));
+
+        printIndented(1, "Current roster:");
+        invoker.execute("print-roster", indentConsumer(2));
         System.out.println();
     }
 
@@ -79,19 +84,19 @@ public class Main {
 
         customerService.updateContactDetails(henry.getId(), null, "henry.fox@example.com");
 
-        System.out.println("Registered customers:");
+        printIndented(1, "Registered customers:");
         customerService.listCustomers().forEach(customer ->
-                System.out.println("- " + customer.getId() + ": " + customer));
+                printIndented(2, "- " + customer.getId() + ": " + customer));
 
         promotionService.createPromotion("percentage", "Summer Sale", 0.20);
         promotionService.createPromotion("flat", "Welcome Credit", 50);
 
-        System.out.println("Active promotions:");
+        printIndented(1, "Active promotions:");
         promotionService.listPromotions().forEach(promotion ->
-                System.out.println("- " + promotion.name()));
+                printIndented(2, "- " + promotion.name()));
 
         double sampleTotal = promotionService.applyPromotions(500, "Summer Sale", "Welcome Credit");
-        System.out.printf("Sample total after promotions: $%.2f%n", sampleTotal);
+        printIndented(1, String.format("Sample total after promotions: $%.2f", sampleTotal));
         System.out.println();
     }
 
@@ -115,7 +120,9 @@ public class Main {
 
         catalog.register(deluxeSuite);
         catalog.register(familyRoom);
-        catalog.listRooms().forEach(room -> System.out.println("Registered room: " + room));
+
+        printIndented(1, "Registered rooms:");
+        catalog.listRooms().forEach(room -> printIndented(2, "- " + room));
 
         BookingService bookingService = new BookingService();
         bookingService.registerStrategy("standard", new StandardPricingStrategy());
@@ -132,11 +139,6 @@ public class Main {
                 "Summer Sale",
                 "Welcome Credit");
         Customer graceCustomer = customerService.viewCustomer("CUST-100");
-        System.out.printf(
-                "Booking %s for %s final total after promotions: $%.2f%n",
-                graceBooking.getBookingId(),
-                graceCustomer.getName(),
-                discountedTotal);
 
         Booking henryBooking = bookingService.createBooking(
                 "standard",
@@ -145,11 +147,18 @@ public class Main {
                 LocalDate.now().plusDays(3),
                 2);
         Customer henryCustomer = customerService.viewCustomer("CUST-200");
-        System.out.printf(
-                "Booking %s for %s standard total: $%.2f%n",
+
+        printIndented(1, "Bookings:");
+        printIndented(2, String.format(
+                "%s for %s final total after promotions: $%.2f",
+                graceBooking.getBookingId(),
+                graceCustomer.getName(),
+                discountedTotal));
+        printIndented(2, String.format(
+                "%s for %s standard total: $%.2f",
                 henryBooking.getBookingId(),
                 henryCustomer.getName(),
-                henryBooking.getTotalCost());
+                henryBooking.getTotalCost()));
         System.out.println();
     }
 
@@ -162,11 +171,28 @@ public class Main {
         publisher.register(adminListener);
         publisher.register(loyaltyListener);
 
-        publisher.publish(new Review("CUST-100", 5, "Loved the deluxe suite!"));
-        publisher.publish(new Review("CUST-200", 3, "Great service but room was small."));
+        printIndented(1, "Publishing reviews:");
+        Review deluxeReview = new Review("CUST-100", 5, "Loved the deluxe suite!");
+        Review serviceReview = new Review("CUST-200", 3, "Great service but room was small.");
+        publisher.publish(deluxeReview);
+        printIndented(2, String.format("Captured review from %s (rating %d)",
+                deluxeReview.getCustomerId(), deluxeReview.getRating()));
+        publisher.publish(serviceReview);
+        printIndented(2, String.format("Captured review from %s (rating %d)",
+                serviceReview.getCustomerId(), serviceReview.getRating()));
 
-        System.out.println("Total reviews captured by admin: " + adminListener.getCapturedReviews().size());
-        System.out.println("Positive reviews flagged for loyalty rewards: " + loyaltyListener.getPositiveReviews().size());
+        printIndented(1, "Observer summary:");
+        printIndented(2, "Total reviews captured by admin: " + adminListener.getCapturedReviews().size());
+        printIndented(2, "Positive reviews flagged for loyalty rewards: " + loyaltyListener.getPositiveReviews().size());
         System.out.println();
+    }
+
+    private static Consumer<String> indentConsumer(int level) {
+        return line -> printIndented(level, line);
+    }
+
+    private static void printIndented(int level, String text) {
+        String indent = "  ".repeat(Math.max(0, level));
+        System.out.println(indent + text);
     }
 }

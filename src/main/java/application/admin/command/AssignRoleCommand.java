@@ -4,6 +4,9 @@ import application.admin.AdminService;
 import application.admin.Role;
 import application.admin.Staff;
 
+import java.util.Objects;
+import java.util.function.Consumer;
+
 /**
  * Command to assign a role to an existing staff member.
  */
@@ -28,9 +31,10 @@ public class AssignRoleCommand implements AdminCommand {
     }
 
     @Override
-    public void execute() {
+    public void execute(Consumer<String> output) {
+        Objects.requireNonNull(output, "output");
         adminService.assignRole(staffId, role);
         Staff staff = adminService.viewStaff(staffId);
-        System.out.printf("Assigned role %s to %s%n", staff.getRole(), staff.getName());
+        output.accept(String.format("Assigned role %s to %s", staff.getRole(), staff.getName()));
     }
 }
