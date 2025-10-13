@@ -2,6 +2,7 @@ package application.customer;
 
 import java.util.Collection;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -28,6 +29,10 @@ public class CustomerRegistry {
     }
 
     public Collection<Customer> listCustomers() {
-        return customers.values();
+        return List.copyOf(customers.values());
+    }
+
+    public Customer remove(String id) {
+        return customers.remove(id);
     }
 }
